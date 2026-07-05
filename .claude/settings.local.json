@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --prefix /Users/fenne/Documents/Kraken/drum-delivery-management-system/drum_delivery_frontend install)",
+      "Bash(SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run)"
+    ],
+    "deny": []
+  }
+}

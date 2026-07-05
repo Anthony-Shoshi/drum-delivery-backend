@@ -1,0 +1,133 @@
+spring:
+  application:
+    name: drum_delivery_backend
+  mvc:
+    cors:
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+      allowed-headers: "*"
+      allowed-origins: ${ALLOWED_ORIGINS:http://localhost,http://localhost:*}
+  jpa:
+    open-in-view: true
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# Logging Configuration
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.hibernate: INFO
+    com.drum_delivery_backend: DEBUG
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+      show-components: when_authorized
+  info:
+    env:
+      enabled: true
+  health:
+    db:
+      enabled: true
+  security:
+    enabled: true
+
+# JWT Configuration
+app:
+  jwt:
+    expiration:
+      ms: 3600000
+  document:
+    storage-dir: ${DOCUMENT_STORAGE_DIR:./storage/documents}
+    max-file-size: ${MAX_FILE_UPLOAD_SIZE:10MB}
+    allowed-types: ${ALLOWED_FILE_TYPES:jpg,jpeg,png,gif,pdf,doc,docx}
+  email:
+    from: ${EMAIL_FROM:noreply@drumdelivery.com}
+    from-name: ${EMAIL_FROM_NAME:Drum Delivery System}
+  security:
+    two-factor:
+      token-length: 6
+      token-expiry-minutes: 5
+      max-attempts: 3
+    password-reset:
+      token-expiry-hours: 24
+
+
+# Profile specific configurations
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  h2:
+    console:
+      enabled: ${H2_CONSOLE_ENABLED:true}
+      path: /h2-console
+      settings:
+        web-allow-others: ${H2_CONSOLE_ENABLED:true}
+  datasource:
+    url: jdbc:h2:mem:drumdeliverydb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:drumdeliverydb}?useSSL=true&serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          batch_size: 30
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
